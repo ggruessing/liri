@@ -2,7 +2,17 @@ var request = require("request")
 
 var fs = require("fs")
 
+
+
+var keys = require('./twitterkeys');
+
+var Twitter = require('twitter');
+
+var Spotify = require('node-spotify-api');
+
 var arg = process.argv[2]
+
+var selection = process.argv.splice(3)
 
 var search = ""
 
@@ -14,52 +24,92 @@ process.argv.forEach((val , index) => {
 	}
 })
 
+
+
+
 switch (arg) {
-	case "tweet":
+	case "tweets":
 		tweeter();
 		break;
 	case "spotify":
 		spotter();
 		break;
-	case "omdb":
+	case "movie":
 		movier();
+		break;
+	case "do":
+		doer();
 		break;
 }
 
-function movier(){
-	var queryUrl = "http://www.omdbapi.com/?t=" + search + "&y=&plot=short&apikey=40e9cece";
 
-	console.log(queryUrl);
+
+function movier(){
+	var queryUrl = "http://www.omdbapi.com/?t=" + selection + "&y=&plot=short&apikey=40e9cece";
 
 	request(queryUrl , function(error, response, body){
 
 		if (!error && response.statusCode === 200) {
 
 			body = JSON.parse(body)
+		
+			console.log(body.Title)
 	 		console.log(body.Year)
-	 		fs.appendFile("log.txt")
+	 		console.log(body.Ratings[1].Source)
+	 		console.log(body.Ratings[1].Value)
+	 		console.log(body.imdbRating)
+
+	 		fs.appendFile("log.txt","utf-8")
 		}
 	})
 }
 
 function tweeter(){
-	var queryUrl = "https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name=twitterapi&count=10";
-	console.log(queryUrl);
+var client = new Twitter({
+  consumer_key: keys.consumerKey,
+  consumer_secret: keys.consumerSecret,
+  access_token_key: keys.token,
+  access_token_secret: keys.secret
+});
+ 
+var params = {screen_name: 'nodejs' , count: 1};
+client.get('statuses/user_timeline', params, function(error, tweets, response) {
+  if (!error) {
+    console.log(tweets);
+    console.log(response)
+  }
+});
+}
 
-	request(queryUrl , function(error, response, body){
+function spotter(selection){
+var client_id = '4326f1583d504a8db104448e63ef5272'; 
+var client_secret = '2140f36bb8434cd1a9d92abe86ed9c3a'; 
+ 
+var spotify = new Spotify({
+  id: '4326f1583d504a8db104448e63ef5272',
+  secret: '2140f36bb8434cd1a9d92abe86ed9c3a'
+});
+ 
+spotify.search({ type: 'track', query: selection , limit: 1}, function(err, data) {
+  if (err) {
+    return console.log('Error occurred: ' + err);
+  }
+console.log(data.tracks.items[0].name)
+console.log(data.tracks.items[0].artists[0].name)
+console.log(data.tracks.items[0].album.name)
+console.log(data.tracks.items[0].external_urls.spotify)
 
-		if (!error && response.statusCode === 200) {
+});
+}
 
-			body = JSON.parse(body)
-			console.log(body)
-			for (var i = 0; i < body.length; i++) {
-				console.log(body[i].text)
-			}
-	 		
-	 		fs.appendFile("log.txt")
+function doer(){
 
+	fs.readFile("random.txt" , "utf-8" , function(err, data){
+		if(err){
+			console.log(err)
 		}
-		else{console.log(error)
-			console.log(body)}
+		
+		spotter(data)
 	})
+
 }
