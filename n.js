@@ -28,13 +28,13 @@ process.argv.forEach((val , index) => {
 
 
 switch (arg) {
-	case "tweets":
+	case "my-tweets":
 		tweeter();
 		break;
-	case "spotify":
+	case "spotify-this-song":
 		spotter();
 		break;
-	case "movie":
+	case "movie-this":
 		movier();
 		break;
 	case "do":
@@ -52,14 +52,15 @@ function movier(){
 		if (!error && response.statusCode === 200) {
 
 			body = JSON.parse(body)
-		
+			console.log("")
 			console.log(body.Title)
-	 		console.log(body.Year)
-	 		console.log(body.Ratings[1].Source)
-	 		console.log(body.Ratings[1].Value)
-	 		console.log(body.imdbRating)
-
-	 		fs.appendFile("log.txt","utf-8")
+	 		console.log("Year: "+body.Year)
+	 		console.log(body.Ratings[1].Source+" Rating:"+body.Ratings[1].Value)
+	 		console.log("Imbd Rating: "+body.imdbRating)
+	 		console.log("Counrty produced in: "+body.Country)
+	 		console.log("Plot: "+body.Plot)
+	 		console.log("Actors: "+body.Actors)
+	 		console.log("")
 		}
 	})
 }
@@ -72,11 +73,19 @@ var client = new Twitter({
   access_token_secret: keys.secret
 });
  
-var params = {screen_name: 'nodejs' , count: 1};
+var params = {screen_name: 'nodejs' , count: 5};
 client.get('statuses/user_timeline', params, function(error, tweets, response) {
   if (!error) {
-    console.log(tweets);
-    console.log(response)
+  	for (var i = 0; i < tweets.length; i++) {
+  		console.log("")
+  		console.log("Tweet: "+i+": "+tweets[i].text);
+  		console.log("")
+  	}
+    
+
+  }
+  else{
+  	console.log(error);
   }
 });
 }
