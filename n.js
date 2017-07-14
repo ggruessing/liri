@@ -32,12 +32,12 @@ switch (arg) {
 		tweeter();
 		break;
 	case "spotify-this-song":
-		spotter();
+		spotter(selection);
 		break;
 	case "movie-this":
 		movier();
 		break;
-	case "do":
+	case "do-what-it-says":
 		doer();
 		break;
 }
@@ -73,7 +73,7 @@ var client = new Twitter({
   access_token_secret: keys.secret
 });
  
-var params = {screen_name: 'nodejs' , count: 5};
+var params = {screen_name: 'nodejs' , count: 20};
 client.get('statuses/user_timeline', params, function(error, tweets, response) {
   if (!error) {
   	for (var i = 0; i < tweets.length; i++) {
